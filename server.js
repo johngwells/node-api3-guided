@@ -12,20 +12,28 @@ const server = express();
 // helmet
 server.use(morgan("dev")); // third party, needs to be npm installed
 server.use(helmet()); // third party, npm i
-server.use(logger);
+// server.use(logger);
 server.use(express.json()); // built in middleware: no need to npm i
 
-server.use('/api/hubs', hubsRouter);
+server.use('/api/hubs', logger, hubsRouter);
 
-server.get('/', (req, res) => {
+// server.use(addName);
+
+server.get('/', addName('Johnny'), logger, (req, res) => {
   const nameInsert = (req.name) ? ` ${req.name}` : '';
-
   console.log('req.name', req.name);
   res.send(`
     <h2>Lambda Hubs API</h2>
     <p>Welcome${nameInsert} to the Lambda Hubs API</p>
     `);
 });
+
+function addName(name) {
+  return function(req, res, next) {
+    req.name = name;
+    next();
+  }
+}
 
 // catch all
 server.use(function(req, res, next) {
